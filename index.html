@@ -277,6 +277,8 @@ svg.hills,svg.hills *{stroke:none}
 .slide.on .hills .hl{transform:none;opacity:1}
 .hills img{display:block;width:100%;height:100%;animation:drift var(--dur) ease-in-out infinite}
 .hills.band{z-index:0}
+#s1 .hills .hl:first-child,#s15 .hills .hl:first-child{mix-blend-mode:multiply}
+.slide.on#s1 .hills .hl:first-child,.slide.on#s15 .hills .hl:first-child{opacity:.5}
 
 /* pearls: wrapper enters, inner bobs */
 .pw{position:absolute;z-index:4}
