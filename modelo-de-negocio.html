@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perlify · Modelo de negocio para imprimir</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 portrait;margin:0}
+:root{--teal:#2f9e98;--teal-d:#1f7f7a;--deep:#173f3c;--muted:#5f7f7c;--cream:#f6faf6;--mint:#e7f5f3;--line:#dbe8e3}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:Poppins,sans-serif;background:#cfd8d5;color:var(--deep)}
+.bar{position:sticky;top:0;z-index:9;display:flex;gap:16px;align-items:center;justify-content:center;padding:14px;background:var(--deep);color:#d7ece8;font-size:14px}
+.bar button{font:600 14px Poppins;background:#8fe0d8;color:var(--deep);border:0;border-radius:999px;padding:10px 22px;cursor:pointer}
+.sheet{width:210mm;height:297mm;margin:10mm auto;background:#fff;display:grid;grid-template-rows:1fr 1fr;page-break-after:always;break-after:page;position:relative}
+.sheet:last-child{page-break-after:auto;break-after:auto}
+.cell{padding:7mm;position:relative}
+.cell+.cell{border-top:.4mm dashed #9db9b4}
+.cell+.cell::before{content:"✂";position:absolute;left:6mm;top:-3.4mm;font-size:5mm;color:#7fa39e;background:#fff;padding:0 1.5mm;line-height:1}
+.card{height:100%;border-radius:6mm;background:var(--cream);border:.35mm solid var(--line);padding:9mm 11mm;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.top{display:flex;align-items:center;gap:5mm;margin-bottom:6mm}
+.num{width:17mm;height:17mm;border-radius:50%;flex:none;display:grid;place-items:center;font-family:Anton;font-size:9mm;color:var(--deep);
+  background:radial-gradient(circle at 30% 26%,#fff 0 9%,rgba(255,255,255,0) 26%),radial-gradient(circle at 42% 40%,#fdfefd 0,#eef7f5 35%,#cfe3df 70%,#a9c8c3 100%);
+  box-shadow:inset -1mm -1.6mm 3mm rgba(80,130,124,.35),1.2mm 1.8mm 2.6mm rgba(23,63,60,.22)}
+h2{font-family:Anton;font-weight:400;text-transform:uppercase;font-size:15mm;line-height:.95;color:var(--deep)}
+.kick{font-size:3mm;letter-spacing:1.4mm;text-transform:uppercase;color:var(--muted);margin-bottom:1.5mm}
+ul{list-style:none;display:flex;flex-direction:column;gap:4mm}
+li{font-size:5.8mm;line-height:1.35;padding-left:7.5mm;position:relative}
+li::before{content:"";position:absolute;left:0;top:2.4mm;width:3mm;height:3mm;border-radius:50%;background:var(--teal)}
+li b{font-weight:600}
+.foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:3mm;letter-spacing:.8mm;text-transform:uppercase;color:var(--muted);padding-top:4mm}
+.foot img{height:6mm;vertical-align:middle;margin-right:1.5mm}
+.dark{background:var(--deep);border-color:var(--deep);color:#fff}
+.dark h2{color:#fff}.dark .kick,.dark .foot{color:#a9d8d2}.dark li::before{background:#8fe0d8}
+.lead{font-family:Anton;font-weight:400;text-transform:uppercase;font-size:9mm;line-height:1.05;color:#8fe0d8;margin-bottom:5mm}
+.dark li{font-size:4.6mm;line-height:1.3}
+.dark ul{gap:2.4mm}
+.plans{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-bottom:6mm}
+.plan{background:#fff;border:.35mm solid var(--line);border-radius:4mm;padding:3.5mm 2mm;text-align:center}
+.plan b{display:block;font-family:Anton;font-weight:400;font-size:12mm;line-height:1}
+.plan span{font-size:3.2mm;letter-spacing:.5mm;text-transform:uppercase;color:var(--muted)}
+/* title card */
+.title{justify-content:center;align-items:center;text-align:center;background:var(--cream)}
+.title .eb{font-size:4.4mm;font-weight:300;letter-spacing:2.6mm;text-transform:uppercase}
+.title .w{font-family:Anton;font-size:44mm;line-height:1;margin:3mm 0 2mm;color:var(--deep);position:relative;z-index:1}
+.title .sub{font-family:Anton;font-size:12mm;text-transform:uppercase;color:var(--teal-d);position:relative;z-index:1}
+.title svg{position:absolute;left:0;bottom:0;width:100%;height:38mm}
+.title .meta{position:absolute;bottom:7mm;left:0;right:0;font-size:3.3mm;letter-spacing:1.2mm;text-transform:uppercase;color:#e3f4f1;z-index:2}
+@media print{
+  body{background:#fff}
+  .bar{display:none}
+  .sheet{margin:0}
+}
+</style>
+</head>
+<body>
+<div class="bar">Imprime en A4 y recorta por las líneas punteadas. En el diálogo de impresión activa "Gráficos de fondo" y quita encabezados y pies de página. <button onclick="print()">Imprimir</button></div>
+
+<!-- hoja 1 -->
+<div class="sheet">
+  <div class="cell"><div class="card title">
+    <div class="eb">Lienzo de modelo de negocio</div>
+    <div class="w">PERLIFY</div>
+    <div class="sub">Software médico para Ecuador</div>
+    <svg viewBox="0 0 600 120" preserveAspectRatio="none">
+      <path d="M0 40 C80 10 160 20 240 38 S420 10 600 30 V120 H0Z" fill="#a8dbd3"/>
+      <path d="M0 64 C100 40 200 50 300 66 S500 44 600 58 V120 H0Z" fill="#4fb0a8"/>
+      <path d="M0 90 C120 74 260 84 380 92 S540 80 600 86 V120 H0Z" fill="#1f6e69"/>
+    </svg>
+    <div class="meta">Portoviejo Challenge 2026 · perlify.app</div>
+  </div></div>
+  <div class="cell"><div class="card">
+    <div class="top"><div class="num">1</div><div><div class="kick">¿Para quién creamos valor?</div><h2>Segmentos de clientes</h2></div></div>
+    <ul>
+      <li><b>Médicos independientes</b> en consulta privada</li>
+      <li><b>Consultorios compartidos</b> de 2 o más profesionales</li>
+      <li><b>Centros médicos y policlínicos</b> pequeños y medianos</li>
+      <li><b>Especialidades:</b> medicina general, odontología, pediatría, ginecología, cardiología, oftalmología, psicología y más</li>
+      <li>Profesionales que hoy usan papel, Excel o WhatsApp personal</li>
+    </ul>
+    <div class="foot"><span><img src="img/logo-teal.png" alt="">Perlify</span><span>Modelo de negocio</span></div>
+  </div></div>
+</div>
+
+<!-- hoja 2 -->
+<div class="sheet">
+  <div class="cell"><div class="card dark">
+    <div class="top"><div class="num">2</div><div><div class="kick">¿Qué problema resolvemos?</div><h2>Propuesta de valor</h2></div></div>
+    <div class="lead">Tu consultorio en un solo lugar: menos papeleo, más pacientes.</div>
+    <ul>
+      <li>Pacientes que agendan solos por WhatsApp, 24/7</li>
+      <li>Recordatorios con confirmación para reducir inasistencias</li>
+      <li>Historia clínica según norma MSP (Form. 008, CIE-10)</li>
+      <li>Recetas, certificados, órdenes y consentimientos en segundos</li>
+      <li>Facturación electrónica SRI integrada</li>
+      <li>Modo sin conexión para cortes de luz</li>
+      <li>Reportes MSP, contabilidad e inventario</li>
+    </ul>
+    <div class="foot"><span>Perlify</span><span>Modelo de negocio</span></div>
+  </div></div>
+  <div class="cell"><div class="card">
+    <div class="top"><div class="num">3</div><div><div class="kick">¿Cómo llegamos a ellos?</div><h2>Canales</h2></div></div>
+    <ul>
+      <li>Sitio web <b>perlify.app</b></li>
+      <li>Instagram <b>@perlifymed</b> y contenido en redes</li>
+      <li>Recomendación entre colegas</li>
+      <li>Demostraciones y ferias de emprendimiento</li>
+    </ul>
+    <div class="foot"><span><img src="img/logo-teal.png" alt="">Perlify</span><span>Modelo de negocio</span></div>
+  </div></div>
+</div>
+
+<!-- hoja 3 -->
+<div class="sheet">
+  <div class="cell"><div class="card">
+    <div class="top"><div class="num">4</div><div><div class="kick">¿Cómo nos relacionamos?</div><h2>Relación con clientes</h2></div></div>
+    <ul>
+      <li>Prueba gratuita sin tarjeta</li>
+      <li>Autoservicio con acompañamiento en el onboarding</li>
+      <li>Soporte directo por WhatsApp</li>
+      <li>Programa de referidos con descuentos</li>
+    </ul>
+    <div class="foot"><span><img src="img/logo-teal.png" alt="">Perlify</span><span>Modelo de negocio</span></div>
+  </div></div>
+  <div class="cell"><div class="card">
+    <div class="top"><div class="num">5</div><div><div class="kick">¿Cómo generamos ingresos?</div><h2>Fuentes de ingreso</h2></div></div>
+    <div class="plans">
+      <div class="plan"><b>$25</b><span>Individual</span></div>
+      <div class="plan"><b>$35</b><span>Profesional</span></div>
+      <div class="plan"><b>$40</b><span>2 Doctores</span></div>
+      <div class="plan"><b>$130</b><span>Centro Médico</span></div>
+    </div>
+    <ul>
+      <li><b>Suscripción mensual (SaaS)</b> según el plan</li>
+      <li>Prueba gratuita para convertir usuarios en suscriptores</li>
+      <li><b>Perlas (créditos de uso):</b> copiloto IA y envío de documentos por WhatsApp</li>
+    </ul>
+    <div class="foot"><span><img src="img/logo-teal.png" alt="">Perlify</span><span>Modelo de negocio</span></div>
+  </div></div>
+</div>
+
+<!-- hoja 4 -->
+<div class="sheet">
+  <div class="cell"><div class="card">
+    <div class="top"><div class="num">6</div><div><div class="kick">¿Qué necesitamos?</div><h2>Recursos clave</h2></div></div>
+    <ul>
+      <li>Plataforma propia (web y app instalable en celular)</li>
+      <li>Equipo de desarrollo y conocimiento de la normativa ecuatoriana</li>
+      <li>Integraciones con WhatsApp, SRI e IA</li>
+      <li>Marca y comunidad en redes (@perlifymed)</li>
+    </ul>
+    <div class="foot"><span><img src="img/logo-teal.png" alt="">Perlify</span><span>Modelo de negocio</span></div>
+  </div></div>
+  <div class="cell"><div class="card">
+    <div class="top"><div class="num">7</div><div><div class="kick">¿Qué hacemos?</div><h2>Actividades clave</h2></div></div>
+    <ul>
+      <li>Desarrollo y mejora continua de la plataforma</li>
+      <li>Cumplimiento normativo MSP, SRI y LOPDP</li>
+      <li>Marketing digital y ventas a médicos</li>
+      <li>Onboarding y soporte a clínicas</li>
+    </ul>
+    <div class="foot"><span><img src="img/logo-teal.png" alt="">Perlify</span><span>Modelo de negocio</span></div>
+  </div></div>
+</div>
+
+<!-- hoja 5 -->
+<div class="sheet">
+  <div class="cell"><div class="card">
+    <div class="top"><div class="num">8</div><div><div class="kick">¿Con quién trabajamos?</div><h2>Socios clave</h2></div></div>
+    <ul>
+      <li><b>Meta (WhatsApp Business API):</b> agendamiento y recordatorios automáticos</li>
+      <li><b>SRI:</b> autorización de comprobantes electrónicos</li>
+      <li><b>Supabase y Vercel:</b> base de datos e infraestructura en la nube</li>
+      <li><b>OpenAI:</b> copiloto de IA para redacción clínica</li>
+      <li><b>Paddle:</b> cobro de suscripciones</li>
+      <li><b>Médicos aliados y referidos:</b> validación y difusión entre colegas</li>
+    </ul>
+    <div class="foot"><span><img src="img/logo-teal.png" alt="">Perlify</span><span>Modelo de negocio</span></div>
+  </div></div>
+  <div class="cell"><div class="card">
+    <div class="top"><div class="num">9</div><div><div class="kick">¿En qué invertimos?</div><h2>Estructura de costos</h2></div></div>
+    <ul>
+      <li>Infraestructura en la nube y base de datos</li>
+      <li>Mensajería de WhatsApp Business</li>
+      <li>Uso de inteligencia artificial</li>
+      <li>Comisiones de la pasarela de pagos</li>
+      <li>Desarrollo y mantenimiento del producto</li>
+      <li>Marketing y adquisición de clientes</li>
+    </ul>
+    <div class="foot"><span><img src="img/logo-teal.png" alt="">Perlify</span><span>Modelo de negocio</span></div>
+  </div></div>
+</div>
+</body>
+</html>
